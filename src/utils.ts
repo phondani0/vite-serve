@@ -86,3 +86,49 @@ export function createHtmlEntryFile(tempDir: string): void {
     `;
     fs.writeFileSync(htmlEntryFilePath, content, "utf8");
 }
+
+// Function to read and parse a JSON file
+const readJsonFile = (filePath: string) => {
+    const content = fs.readFileSync(filePath, "utf8");
+    return JSON.parse(content);
+};
+
+/**
+ * @param projectPath
+ * @param tempDir
+ *
+ * @description Combines the package.json files from the project and temp directories into a single file in the temp directory folder.
+ */
+export const combinePackageJson = (
+    projectPath: string,
+    tempDir: string
+): void => {
+    const tempPackageJsonPath = path.join(tempDir, "package.json");
+    const tempPackageJson = readJsonFile(tempPackageJsonPath);
+
+    const projectPackageJsonPath = path.join(projectPath, "package.json");
+    const projectPackageJson = readJsonFile(projectPackageJsonPath);
+
+    const combinedPackageJson = {
+        ...projectPackageJson,
+        dependencies: {
+            ...projectPackageJson.dependencies,
+            ...tempPackageJson.dependencies,
+        },
+        devDependencies: {
+            ...projectPackageJson.devDependencies,
+            ...tempPackageJson.devDependencies,
+        },
+    };
+
+    // delete existing package.json from temp directory
+    fs.unlinkSync(tempPackageJsonPath);
+
+    fs.writeFileSync(
+        tempPackageJsonPath,
+        JSON.stringify(combinedPackageJson, null, 2),
+        "utf8"
+    );
+
+    console.log("Combined package.json file created successfully.");
+};

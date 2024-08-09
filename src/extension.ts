@@ -1,6 +1,7 @@
 import { exec } from "child_process";
 import * as vscode from "vscode";
 import {
+    combinePackageJson,
     createHtmlEntryFile,
     createTempDirectory,
     createViteConfig,
@@ -34,6 +35,7 @@ const runWithVite = async () => {
     try {
         await installViteInTempDir(tempDir);
         symlinkOrCopyProjectFiles(projectPath, tempDir);
+        combinePackageJson(projectPath, tempDir);
 
         vscode.window.showInformationMessage("Installing dependencies...");
 
