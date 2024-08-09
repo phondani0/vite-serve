@@ -1,0 +1,30 @@
+name: Publish to VSCode Marketplace
+
+on:
+    push:
+        branches:
+            - main
+
+jobs:
+    publish:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v3
+
+            - name: Install Node.js
+              uses: actions/setup-node@v3
+              with:
+                  node-version: 20
+
+            - name: Install dependencies
+              run: npm install
+
+            - name: Publish to VSCode Marketplace
+              env:
+                  VSCODE_PUBLISHER_EMAIL: ${{ secrets.VSCODE_PUBLISHER_EMAIL }}
+                  VSCODE_PUBLISHER_TOKEN: ${{ secrets.VSCODE_PUBLISHER_TOKEN }}
+              run: |
+                  npx vsce package
+                  npx vsce publish --pat ${{ env.VSCODE_PUBLISHER_TOKEN }}
