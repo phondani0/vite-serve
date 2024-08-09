@@ -1,25 +1,68 @@
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
-import * as vscode from 'vscode';
+import { exec } from "child_process";
+import * as vscode from "vscode";
+import {
+    createTempDirectory,
+    createViteConfig,
+    installViteInTempDir,
+    symlinkOrCopyProjectFiles,
+} from "./utils";
 
-// This method is called when your extension is activated
-// Your extension is activated the very first time the command is executed
+function startViteServer(tempDir: string): void {
+    exec("npx vite", { cwd: tempDir }, (error, stdout, stderr) => {
+        if (error) {
+            console.error(`Vite error: ${stderr}`);
+            vscode.window.showInformationMessage("Vite error:", stderr);
+            return;
+        }
+    });
+}
+
+const runWithVite = async () => {
+    const workspaceFolders = vscode.workspace.workspaceFolders;
+
+    if (!workspaceFolders) {
+        return vscode.window.showErrorMessage("No workspace folder found.");
+    }
+
+    const projectPath = workspaceFolders[0].uri.fsPath;
+
+    const tempDir = createTempDirectory();
+
+    vscode.window.showInformationMessage(projectPath);
+
+    try {
+        await installViteInTempDir(tempDir);
+        symlinkOrCopyProjectFiles(projectPath, tempDir);
+
+        vscode.window.showInformationMessage("Installing dependencies...");
+
+        // @TODO: Optimize this.
+        exec("npm install", { cwd: tempDir }, (error, stdout, stderr) => {
+            if (error) {
+                throw error;
+            }
+
+            createViteConfig(tempDir, projectPath);
+            startViteServer(tempDir);
+
+            vscode.window.showInformationMessage(
+                "React app is running with Vite!"
+            );
+        });
+    } catch (error) {
+        vscode.window.showErrorMessage(
+            "Failed to run the React app with Vite."
+        );
+    }
+};
+
 export function activate(context: vscode.ExtensionContext) {
+    let disposable = vscode.commands.registerCommand(
+        "vite-serve.runWithVite",
+        runWithVite
+    );
 
-	// Use the console to output diagnostic information (console.log) and errors (console.error)
-	// This line of code will only be executed once when your extension is activated
-	console.log('Congratulations, your extension "vite-serve" is now active!');
-
-	// The command has been defined in the package.json file
-	// Now provide the implementation of the command with registerCommand
-	// The commandId parameter must match the command field in package.json
-	const disposable = vscode.commands.registerCommand('vite-serve.helloWorld', () => {
-		// The code you place here will be executed every time your command is executed
-		// Display a message box to the user
-		vscode.window.showInformationMessage('Hello World from Vite Serve!');
-	});
-
-	context.subscriptions.push(disposable);
+    context.subscriptions.push(disposable);
 }
 
 // This method is called when your extension is deactivated
