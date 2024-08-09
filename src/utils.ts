@@ -4,10 +4,10 @@ import * as fs from "fs";
 import * as os from "os";
 import * as path from "path";
 
-export function createTempDirectory(): string {
-    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "vite-extension-"));
+export const createTempDirectory = (): string => {
+    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "vite-serve-"));
     return tempDir;
-}
+};
 
 export function installViteInTempDir(tempDir: string): Promise<void> {
     return new Promise((resolve, reject) => {
@@ -35,7 +35,7 @@ export function symlinkOrCopyProjectFiles(
     const tempSrcDir = path.join(tempDir, "src");
 
     if (fs.existsSync(tempSrcDir)) {
-        fs.rmdirSync(tempSrcDir, { recursive: true });
+        fs.unlinkSync(tempSrcDir);
     }
 
     // Symlink the src directory (you can also copy it if preferred)

@@ -19,19 +19,7 @@ function startViteServer(tempDir: string): void {
     });
 }
 
-const runWithVite = async () => {
-    const workspaceFolders = vscode.workspace.workspaceFolders;
-
-    if (!workspaceFolders) {
-        return vscode.window.showErrorMessage("No workspace folder found.");
-    }
-
-    const projectPath = workspaceFolders[0].uri.fsPath;
-
-    const tempDir = createTempDirectory();
-
-    vscode.window.showInformationMessage(projectPath);
-
+const runWithVite = async (tempDir: string, projectPath: string) => {
     try {
         await installViteInTempDir(tempDir);
         symlinkOrCopyProjectFiles(projectPath, tempDir);
@@ -61,9 +49,36 @@ const runWithVite = async () => {
 };
 
 export function activate(context: vscode.ExtensionContext) {
+    // Create a cache object to store temp directories for each project
+    // This cache will be reinitialized every time the extension is activated
+    // If the VS Code window is closed and reopened with a new project, the cache will be reinitialized
+    // But if a new project is opened in the same VS Code window, the cache will not be reinitialized thats why we are using the cache object based on the projectPath.
+
+    // We can reuse the temp directory if it is already there, otherwise we have to do install all the dependencies again, which might take significant amount of time.
+    const tempDirCache: { [projectPath: string]: string } = {};
+
+    const projectPath = vscode.workspace.workspaceFolders?.[0].uri.fsPath;
+
+    if (projectPath) {
+        if (!tempDirCache[projectPath]) {
+            // Create a new temp directory for the project
+            tempDirCache[projectPath] = createTempDirectory();
+        }
+    }
+
     let disposable = vscode.commands.registerCommand(
         "vite-serve.runWithVite",
-        runWithVite
+        () => {
+            if (!projectPath) {
+                return vscode.window.showErrorMessage(
+                    "No workspace folder found."
+                );
+            }
+
+            const tempDir = tempDirCache[projectPath];
+
+            runWithVite(tempDir, projectPath);
+        }
     );
 
     context.subscriptions.push(disposable);
