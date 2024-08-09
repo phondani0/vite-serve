@@ -40,12 +40,6 @@ export function symlinkOrCopyProjectFiles(
 
     // Symlink the src directory (you can also copy it if preferred)
     fs.symlinkSync(srcDir, tempSrcDir, "dir");
-
-    // Copy index.html if needed (for Vite)
-    const indexPath = path.join(projectPath, "index.html");
-    if (fs.existsSync(indexPath)) {
-        fs.copyFileSync(indexPath, path.join(tempDir, "index.html"));
-    }
 }
 
 export function createViteConfig(tempDir: string, projectRoot: string): void {
@@ -70,4 +64,25 @@ export function createViteConfig(tempDir: string, projectRoot: string): void {
         });
     `;
     fs.writeFileSync(viteConfigPath, configContent, "utf8");
+}
+
+export function createHtmlEntryFile(tempDir: string): void {
+    const htmlEntryFilePath = path.join(tempDir, "index.html");
+
+    const content = `
+        <!DOCTYPE html>
+		<html lang="en">
+		<head>
+			<meta charset="UTF-8" />
+			<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+			<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+			<title>Vite React App</title>
+		</head>
+		<body>
+			<div id="root"></div>
+			<script type="module" src="/src/index.jsx"></script>
+		</body>
+		</html>
+    `;
+    fs.writeFileSync(htmlEntryFilePath, content, "utf8");
 }

@@ -1,6 +1,7 @@
 import { exec } from "child_process";
 import * as vscode from "vscode";
 import {
+    createHtmlEntryFile,
     createTempDirectory,
     createViteConfig,
     installViteInTempDir,
@@ -43,6 +44,7 @@ const runWithVite = async () => {
             }
 
             createViteConfig(tempDir, projectPath);
+            createHtmlEntryFile(tempDir);
             startViteServer(tempDir);
 
             vscode.window.showInformationMessage(
