@@ -35,7 +35,8 @@ export function symlinkOrCopyProjectFiles(
     const tempSrcDir = path.join(tempDir, "src");
 
     if (fs.existsSync(tempSrcDir)) {
-        fs.unlinkSync(tempSrcDir);
+        // Remove the tempSrcDir directory, regardless of whether it's a symbolic link or a directory.
+        fs.rmSync(tempSrcDir, { recursive: true, force: true });
     }
 
     // Symlink the src directory (you can also copy it if preferred)
