@@ -3,16 +3,16 @@ branches:
 
 prepare:
     - path: "@semantic-release/exec"
-      cmd: "npm --no-auth --no-git-tag-version version ${nextRelease.version}"
-    - path: "@semantic-release/exec"
-      cmd: "vsce package"
-
-publish: false
+      cmd: "vsce package --out vite-serve-${nextRelease.version}.vsix"
 
 npmPublish: false
 
+assets:
+  - "vite-serve-*.vsix"
+
 success:
-    - path: "@semantic-release/exec"
-      cmd: "vsce publish --pat $VSCE_TOKEN"
+    # - path: "@semantic-release/exec"
+    #   cmd: "vsce publish --pat $VSCE_TOKEN"
+
     - path: "@semantic-release/exec"
       cmd: "git push && git push --tags"
