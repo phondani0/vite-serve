@@ -1,14 +1,15 @@
-name: Publish to VSCode Marketplace
+name: Release & Publish to VSCode Marketplace
 
 on:
     push:
         branches:
-            - main
+            - dev
 
 jobs:
-    publish:
+    release:
         runs-on: ubuntu-latest
-
+        permissions:
+            contents: write
         steps:
             - name: Checkout code
               uses: actions/checkout@v3
@@ -21,10 +22,8 @@ jobs:
             - name: Install dependencies
               run: npm install
 
-            - name: Publish to VSCode Marketplace
+            - name: Run semantic-release
               env:
-                  VSCODE_PUBLISHER_EMAIL: ${{ secrets.VSCODE_PUBLISHER_EMAIL }}
-                  VSCODE_PUBLISHER_TOKEN: ${{ secrets.VSCODE_PUBLISHER_TOKEN }}
-              run: |
-                  npx vsce package
-                  npx vsce publish --pat ${{ env.VSCODE_PUBLISHER_TOKEN }}
+                  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  VSCE_TOKEN: ${{ secrets.VSCODE_PUBLISHER_TOKEN }}
+              run: npx semantic-release

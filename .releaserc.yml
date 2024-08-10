@@ -1,0 +1,18 @@
+branches:
+    - dev
+
+prepare:
+    - path: "@semantic-release/exec"
+      cmd: "npm --no-auth --no-git-tag-version version ${nextRelease.version}"
+    - path: "@semantic-release/exec"
+      cmd: "vsce package"
+
+publish: false
+
+npmPublish: false
+
+success:
+    - path: "@semantic-release/exec"
+      cmd: "vsce publish --pat $VSCE_TOKEN"
+    - path: "@semantic-release/exec"
+      cmd: "git push && git push --tags"
