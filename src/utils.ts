@@ -55,6 +55,18 @@ export function createViteConfig(tempDir: string, projectRoot: string): void {
             build: {
                 outDir: 'dist',
             },
+			esbuild: {
+				loader: "jsx",
+				include: new RegExp("src\/.*\.(jsx|tsx|js|ts)$"),
+				exclude: [],
+			},
+			optimizeDeps: {
+				esbuildOptions: {
+					loader: {
+						".js": "jsx",
+					},
+				},
+			},
             server: {
 				port: 3500,
                 open: true, // Open the browser automatically

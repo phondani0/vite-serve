@@ -27,14 +27,14 @@ const runWithVite = async (tempDir: string, projectPath: string) => {
 
         vscode.window.showInformationMessage("Installing dependencies...");
 
+        createViteConfig(tempDir, projectPath);
+        createHtmlEntryFile(tempDir);
+
         // @TODO: Optimize this.
         exec("npm install", { cwd: tempDir }, (error, stdout, stderr) => {
             if (error) {
                 throw error;
             }
-
-            createViteConfig(tempDir, projectPath);
-            createHtmlEntryFile(tempDir);
             startViteServer(tempDir);
 
             vscode.window.showInformationMessage(
