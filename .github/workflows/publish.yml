@@ -3,7 +3,7 @@ name: Release & Publish to VSCode Marketplace
 on:
     push:
         branches:
-            - dev
+            - main
 
 jobs:
     release:

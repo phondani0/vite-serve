@@ -1,5 +1,5 @@
 branches:
-    - dev
+    - main
 
 plugins:
   - '@semantic-release/commit-analyzer'
@@ -16,7 +16,7 @@ prepare:
       cmd: "npm --git-tag-version=false version ${nextRelease.version}"
 
     - path: "@semantic-release/exec"
-      cmd: "git add package.json && git status && git commit -m 'Update package.json version to ${nextRelease.version}'"
+      cmd: "git add package.json && git status && git commit -m 'chore: update package.json version to ${nextRelease.version}'"
 
 npmPublish: false
 
