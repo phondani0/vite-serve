@@ -24,8 +24,8 @@ npmPublish: false
 #   - "vite-serve-*.vsix"
 
 success:
-    # - path: "@semantic-release/exec"
-    #   cmd: "vsce publish --pat $VSCE_TOKEN"
+    - path: "@semantic-release/exec"
+      cmd: "vsce publish --pat $VSCE_TOKEN"
 
     - path: "@semantic-release/exec"
       cmd: "git pull && git push && git push --tags"
