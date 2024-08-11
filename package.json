@@ -2,7 +2,7 @@
   "name": "vite-serve",
   "displayName": "Vite Serve",
   "description": "An extension designed to streamline your React development workflow by starting your existing projects with Vite with no extra configuration.",
-  "version": "1.0.2",
+  "version": "1.0.0",
   "publisher": "phondani0",
   "engines": {
     "vscode": "^1.8.0"
@@ -33,6 +33,7 @@
   },
   "devDependencies": {
     "@semantic-release/exec": "^6.0.3",
+    "@semantic-release/git": "^10.0.1",
     "@types/mocha": "^10.0.7",
     "@types/node": "20.x",
     "@types/vscode": "^1.8.0",
@@ -48,6 +49,6 @@
   "icon": "images/logo.png",
   "repository": {
     "type": "git",
-    "url": "git://github.com/phondani0/vite-serve.git"
+    "url": "https://github.com/phondani0/vite-serve.git"
   }
 }
