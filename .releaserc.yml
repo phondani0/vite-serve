@@ -1,18 +1,31 @@
 branches:
     - dev
 
+plugins:
+  - '@semantic-release/commit-analyzer'
+  - '@semantic-release/release-notes-generator'
+  - '@semantic-release/npm'
+  - '@semantic-release/git'
+  - '@semantic-release/github'
+
 prepare:
     - path: "@semantic-release/exec"
       cmd: "vsce package --out vite-serve-${nextRelease.version}.vsix"
 
+    - path: "@semantic-release/exec"
+      cmd: "npm --git-tag-version=false version ${nextRelease.version}"
+
+    - path: "@semantic-release/exec"
+      cmd: "git add package.json && git status && git commit -m 'Update package.json version to ${nextRelease.version}'"
+
 npmPublish: false
 
-assets:
-  - "vite-serve-*.vsix"
+# assets:
+#   - "vite-serve-*.vsix"
 
 success:
     # - path: "@semantic-release/exec"
     #   cmd: "vsce publish --pat $VSCE_TOKEN"
 
     - path: "@semantic-release/exec"
-      cmd: "git push && git push --tags"
+      cmd: "git pull && git push && git push --tags"
