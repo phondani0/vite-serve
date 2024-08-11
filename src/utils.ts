@@ -55,6 +55,18 @@ export function createViteConfig(tempDir: string, projectRoot: string): void {
             build: {
                 outDir: 'dist',
             },
+			esbuild: {
+				loader: "jsx",
+				include: new RegExp("src\/.*\.(jsx|tsx|js|ts)$"),
+				exclude: [],
+			},
+			optimizeDeps: {
+				esbuildOptions: {
+					loader: {
+						".js": "jsx",
+					},
+				},
+			},
             server: {
 				port: 3500,
                 open: true, // Open the browser automatically
@@ -68,6 +80,19 @@ export function createViteConfig(tempDir: string, projectRoot: string): void {
 }
 
 export function createHtmlEntryFile(tempDir: string): void {
+    // Move it out.
+    const srcFiles = fs.readdirSync(path.join(tempDir, "src"));
+    const indexFile = srcFiles.find((file) =>
+        file.match(/^index\.(ts|tsx|js|jsx)$/)
+    );
+
+    if (!indexFile) {
+        throw new Error(
+            "Missing '/src/index' file. Please create an 'index' file with a '.ts', '.tsx', '.js', or '.jsx' extension at the '/src' directory."
+        );
+    }
+
+    const indexFileExt = path.extname(indexFile);
     const htmlEntryFilePath = path.join(tempDir, "index.html");
 
     const content = `
@@ -81,7 +106,7 @@ export function createHtmlEntryFile(tempDir: string): void {
 		</head>
 		<body>
 			<div id="root"></div>
-			<script type="module" src="/src/index.jsx"></script>
+			<script type="module" src="/src/index${indexFileExt}"></script>
 		</body>
 		</html>
     `;
