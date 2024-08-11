@@ -8,6 +8,21 @@ plugins:
   - '@semantic-release/git'
   - '@semantic-release/github'
 
+
+analyzeCommits:
+  - path: "@semantic-release/commit-analyzer"
+    releaseRules:
+    - type: "feat"
+      release: "patch"
+    - type: "hotfix"
+      release: "patch"
+    - type: "patch"
+      release: "patch"
+    - type: "minor"
+      release: "minor"
+    - type: "breaking"
+      release: "major"
+
 prepare:
     - path: "@semantic-release/exec"
       cmd: "vsce package --out vite-serve-${nextRelease.version}.vsix"
