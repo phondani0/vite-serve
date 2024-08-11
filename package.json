@@ -2,7 +2,7 @@
   "name": "vite-serve",
   "displayName": "Vite Serve",
   "description": "An extension designed to streamline your React development workflow by starting your existing projects with Vite with no extra configuration.",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "publisher": "phondani0",
   "engines": {
     "vscode": "^1.8.0"
