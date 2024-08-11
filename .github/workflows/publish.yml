@@ -30,4 +30,4 @@ jobs:
                   GIT_COMMITTER_NAME: phondani0
                   GIT_COMMITTER_EMAIL: ankitphondani52@gmail.com
                   VSCE_TOKEN: ${{ secrets.VSCODE_PUBLISHER_TOKEN }}
-              run: npx semantic-release --debug
+              run: npx semantic-release
