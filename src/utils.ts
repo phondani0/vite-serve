@@ -11,6 +11,8 @@ export const createTempDirectory = (): string => {
 
 export function installViteInTempDir(tempDir: string): Promise<void> {
     return new Promise((resolve, reject) => {
+        vscode.window.showInformationMessage("Preparing Vite environment...");
+
         const installCommand =
             "npm install vite @vitejs/plugin-react --save-dev";
         exec(installCommand, { cwd: tempDir }, (error, stdout, stderr) => {
@@ -92,9 +94,12 @@ export function createViteConfig(tempDir: string, projectRoot: string): void {
     fs.writeFileSync(viteConfigPath, configContent, "utf8");
 }
 
-export function createHtmlEntryFile(tempDir: string): void {
+export function createHtmlEntryFile(
+    tempDir: string,
+    projectPath: string
+): void {
     // Move it out.
-    const srcFiles = fs.readdirSync(path.join(tempDir, "src"));
+    const srcFiles = fs.readdirSync(path.join(projectPath, "src"));
     const indexFile = srcFiles.find((file) =>
         file.match(/^index\.(ts|tsx|js|jsx)$/)
     );
@@ -108,22 +113,41 @@ export function createHtmlEntryFile(tempDir: string): void {
     const indexFileExt = path.extname(indexFile);
     const htmlEntryFilePath = path.join(tempDir, "index.html");
 
-    const content = `
-        <!DOCTYPE html>
-		<html lang="en">
-		<head>
-			<meta charset="UTF-8" />
-			<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-			<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-			<title>Vite React App</title>
-		</head>
-		<body>
-			<div id="root"></div>
-			<script type="module" src="/src/index${indexFileExt}"></script>
-		</body>
-		</html>
-    `;
-    fs.writeFileSync(htmlEntryFilePath, content, "utf8");
+    const entryFileScriptTag = `<script type="module" src="/src/index${indexFileExt}"></script>`;
+
+    const existingIndexHtmlPath = path.join(
+        projectPath,
+        "public",
+        "index.html"
+    );
+
+    if (fs.existsSync(existingIndexHtmlPath)) {
+        const htmlContent = fs.readFileSync(existingIndexHtmlPath, "utf8");
+        const updatedHtmlContent = htmlContent.replace(
+            "</body>",
+            `${entryFileScriptTag}</body>`
+        );
+
+        fs.writeFileSync(htmlEntryFilePath, updatedHtmlContent, "utf8");
+    } else {
+        const content = `
+			<!DOCTYPE html>
+			<html lang="en">
+			<head>
+				<meta charset="UTF-8" />
+				<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+				<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+				<title>Vite React App</title>
+			</head>
+			<body>
+				<div id="root"></div>
+				${entryFileScriptTag}
+			</body>
+			</html>
+		`;
+
+        fs.writeFileSync(htmlEntryFilePath, content, "utf8");
+    }
 }
 
 // Function to read and parse a JSON file

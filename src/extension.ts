@@ -21,6 +21,7 @@ function startViteServer(tempDir: string): void {
 
 const runWithVite = async (tempDir: string, projectPath: string) => {
     try {
+        // @TODO: Instead of having separate installs for vite and users dependencies, try to combine both the operations.
         await installViteInTempDir(tempDir);
         symlinkOrCopyProjectFiles(projectPath, tempDir);
         combinePackageJson(projectPath, tempDir);
@@ -28,7 +29,7 @@ const runWithVite = async (tempDir: string, projectPath: string) => {
         vscode.window.showInformationMessage("Installing dependencies...");
 
         createViteConfig(tempDir, projectPath);
-        createHtmlEntryFile(tempDir);
+        createHtmlEntryFile(tempDir, projectPath);
 
         // @TODO: Optimize this.
         exec("npm install", { cwd: tempDir }, (error, stdout, stderr) => {
