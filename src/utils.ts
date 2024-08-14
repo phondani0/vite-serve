@@ -70,10 +70,10 @@ export function createViteConfig(tempDir: string, projectRoot: string): void {
             server: {
 				port: 3500,
                 open: true, // Open the browser automatically
-				fs: {
-					allow: ['${projectRoot}/src']
-				}
             },
+			resolve: {
+				preserveSymlinks: true,
+			}
         });
     `;
     fs.writeFileSync(viteConfigPath, configContent, "utf8");
