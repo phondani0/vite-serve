@@ -31,16 +31,29 @@ export function symlinkOrCopyProjectFiles(
     projectPath: string,
     tempDir: string
 ): void {
-    const srcDir = path.join(projectPath, "src");
-    const tempSrcDir = path.join(tempDir, "src");
+    const dirs = ["public", "src"];
+    const files = ["tsconfig.json"];
 
-    if (fs.existsSync(tempSrcDir)) {
-        // Remove the tempSrcDir directory, regardless of whether it's a symbolic link or a directory.
-        fs.rmSync(tempSrcDir, { recursive: true, force: true });
-    }
+    dirs.forEach((dir) => {
+        const srcDir = path.join(projectPath, dir);
+        const tempSrcDir = path.join(tempDir, dir);
 
-    // Symlink the src directory (you can also copy it if preferred)
-    fs.symlinkSync(srcDir, tempSrcDir, "dir");
+        if (fs.existsSync(tempSrcDir)) {
+            // Remove the tempSrcDir directory, regardless of whether it's a symbolic link or a directory.
+            fs.rmSync(tempSrcDir, { recursive: true, force: true });
+        }
+
+        // Symlink the src directory (you can also copy it if preferred)
+        fs.symlinkSync(srcDir, tempSrcDir, "dir");
+    });
+
+    files.forEach((file) => {
+        const filePath = path.join(projectPath, file);
+
+        if (fs.existsSync(filePath)) {
+            fs.copyFileSync(filePath, tempDir);
+        }
+    });
 }
 
 export function createViteConfig(tempDir: string, projectRoot: string): void {
