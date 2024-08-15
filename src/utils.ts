@@ -71,7 +71,7 @@ export function createViteConfig(tempDir: string, projectRoot: string): void {
                 outDir: 'dist',
             },
 			esbuild: {
-				loader: "jsx",
+				loader: "tsx",
 				include: new RegExp("src\/.*\.(jsx|tsx|js|ts)$"),
 				exclude: [],
 			},
