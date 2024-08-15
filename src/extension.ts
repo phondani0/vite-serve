@@ -32,16 +32,20 @@ const runWithVite = async (tempDir: string, projectPath: string) => {
         createHtmlEntryFile(tempDir, projectPath);
 
         // @TODO: Optimize this.
-        exec("npm install", { cwd: tempDir }, (error, stdout, stderr) => {
-            if (error) {
-                throw error;
-            }
-            startViteServer(tempDir);
+        exec(
+            "npm install --legacy-peer-deps",
+            { cwd: tempDir },
+            (error, stdout, stderr) => {
+                if (error) {
+                    throw error;
+                }
+                startViteServer(tempDir);
 
-            vscode.window.showInformationMessage(
-                "React app is running with Vite!"
-            );
-        });
+                vscode.window.showInformationMessage(
+                    "React app is running with Vite!"
+                );
+            }
+        );
     } catch (error) {
         vscode.window.showErrorMessage(
             "Failed to run the React app with Vite."

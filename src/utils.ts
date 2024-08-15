@@ -53,7 +53,7 @@ export function symlinkOrCopyProjectFiles(
         const filePath = path.join(projectPath, file);
 
         if (fs.existsSync(filePath)) {
-            fs.copyFileSync(filePath, tempDir);
+            fs.copyFileSync(filePath, path.join(tempDir, file));
         }
     });
 }
