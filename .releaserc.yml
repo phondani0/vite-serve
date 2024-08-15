@@ -23,24 +23,27 @@ analyzeCommits:
     - type: "breaking"
       release: "major"
 
-prepare:
-    - path: "@semantic-release/exec"
-      cmd: "vsce package --out vite-serve-${nextRelease.version}.vsix"
 
+prepare:
     - path: "@semantic-release/exec"
       cmd: "npm --git-tag-version=false version ${nextRelease.version}"
 
     - path: "@semantic-release/exec"
       cmd: "git add package.json && git status && git commit -m 'chore: update package.json version to ${nextRelease.version}'"
 
+    - path: "@semantic-release/exec"
+      cmd: "vsce package --out vite-serve-${nextRelease.version}.vsix"
+
+
 npmPublish: false
 
-# assets:
-#   - "vite-serve-*.vsix"
+assets:
+  - "vite-serve-*.vsix"
+
 
 success:
     - path: "@semantic-release/exec"
-      cmd: "vsce publish --pat $VSCE_TOKEN"
+      cmd: "vsce publish --pat $VSCE_TOKEN --packagePath vite-serve-${nextRelease.version}.vsix"
 
     - path: "@semantic-release/exec"
       cmd: "git pull && git push && git push --tags"
