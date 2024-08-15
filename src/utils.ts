@@ -123,10 +123,11 @@ export function createHtmlEntryFile(
 
     if (fs.existsSync(existingIndexHtmlPath)) {
         const htmlContent = fs.readFileSync(existingIndexHtmlPath, "utf8");
-        const updatedHtmlContent = htmlContent.replace(
-            "</body>",
-            `${entryFileScriptTag}</body>`
-        );
+
+        // Append the entry file script tag to the end of the body and replace the %PUBLIC_URL% placeholder with the base URL/path
+        const updatedHtmlContent = htmlContent
+            .replace("</body>", `${entryFileScriptTag}</body>`)
+            .replaceAll("%PUBLIC_URL%", "${import.meta.env.BASE_URL}/public");
 
         fs.writeFileSync(htmlEntryFilePath, updatedHtmlContent, "utf8");
     } else {
