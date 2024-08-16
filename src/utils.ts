@@ -3,6 +3,7 @@ import { exec } from "child_process";
 import * as fs from "fs";
 import * as os from "os";
 import * as path from "path";
+import * as dotenv from "dotenv";
 
 export const createTempDirectory = (): string => {
     const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "vite-serve-"));
@@ -14,7 +15,7 @@ export function installViteInTempDir(tempDir: string): Promise<void> {
         vscode.window.showInformationMessage("Preparing Vite environment...");
 
         const installCommand =
-            "npm install vite @vitejs/plugin-react --save-dev";
+            "npm install vite @vitejs/plugin-react vite-plugin-node-polyfills --save-dev";
         exec(installCommand, { cwd: tempDir }, (error, stdout, stderr) => {
             if (error) {
                 vscode.window.showErrorMessage(
@@ -58,15 +59,39 @@ export function symlinkOrCopyProjectFiles(
     });
 }
 
+const getEnvironmentVariables = (
+    projectRoot: string
+): { [name: string]: string } | undefined => {
+    const envPath = path.join(projectRoot, ".env");
+
+    // Check if .env file exists
+    if (fs.existsSync(envPath)) {
+        // Load environment variables from .env file without modifying process.env
+        const envConfig = dotenv.parse(fs.readFileSync(envPath));
+        return envConfig;
+    }
+};
+
 export function createViteConfig(tempDir: string, projectRoot: string): void {
+    const envVariables = getEnvironmentVariables(projectRoot) || {};
+
     const viteConfigPath = path.join(tempDir, "vite.config.js");
     const configContent = `
         import { defineConfig } from 'vite';
         import react from '@vitejs/plugin-react';
+		import { nodePolyfills } from 'vite-plugin-node-polyfills';
 
         export default defineConfig({
-            plugins: [react()],
             root: '.',
+            plugins: [
+				react(),
+				nodePolyfills()
+			],
+			define: {
+				process: {
+					env: ${JSON.stringify(envVariables)},
+				},
+			},
             build: {
                 outDir: 'dist',
             },
@@ -193,6 +218,4 @@ export const combinePackageJson = (
         JSON.stringify(combinedPackageJson, null, 2),
         "utf8"
     );
-
-    console.log("Combined package.json file created successfully.");
 };
