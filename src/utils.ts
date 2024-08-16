@@ -14,7 +14,7 @@ export function installViteInTempDir(tempDir: string): Promise<void> {
         vscode.window.showInformationMessage("Preparing Vite environment...");
 
         const installCommand =
-            "npm install vite @vitejs/plugin-react --save-dev";
+            "npm install vite @vitejs/plugin-react vite-plugin-node-polyfills --save-dev";
         exec(installCommand, { cwd: tempDir }, (error, stdout, stderr) => {
             if (error) {
                 vscode.window.showErrorMessage(
@@ -63,9 +63,13 @@ export function createViteConfig(tempDir: string, projectRoot: string): void {
     const configContent = `
         import { defineConfig } from 'vite';
         import react from '@vitejs/plugin-react';
+		import { nodePolyfills } from 'vite-plugin-node-polyfills';
 
         export default defineConfig({
-            plugins: [react()],
+            plugins: [
+				react(),
+				nodePolyfills()
+			],
             root: '.',
             build: {
                 outDir: 'dist',
