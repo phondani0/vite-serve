@@ -186,14 +186,13 @@ const readJsonFile = (filePath: string) => {
  * @param projectPath
  * @param tempDir
  *
- * @description Combines the package.json files from the project and temp directories into a single file in the temp directory folder.
+ * @description Merges user project dependencies with required Vite dependencies and updates tempDir package.json.
  */
-export const combinePackageJson = (
+export const combineDependencies = (
     projectPath: string,
     tempDir: string
 ): void => {
     const tempPackageJsonPath = path.join(tempDir, "package.json");
-    const tempPackageJson = readJsonFile(tempPackageJsonPath);
 
     const projectPackageJsonPath = path.join(projectPath, "package.json");
     const projectPackageJson = readJsonFile(projectPackageJsonPath);
@@ -202,16 +201,14 @@ export const combinePackageJson = (
         ...projectPackageJson,
         dependencies: {
             ...projectPackageJson.dependencies,
-            ...tempPackageJson.dependencies,
         },
         devDependencies: {
             ...projectPackageJson.devDependencies,
-            ...tempPackageJson.devDependencies,
+            vite: "latest",
+            "@vitejs/plugin-react": "latest",
+            "vite-plugin-node-polyfills": "latest",
         },
     };
-
-    // delete existing package.json from temp directory
-    fs.unlinkSync(tempPackageJsonPath);
 
     fs.writeFileSync(
         tempPackageJsonPath,
