@@ -1,7 +1,7 @@
 import { exec } from "child_process";
 import * as vscode from "vscode";
 import {
-    combinePackageJson,
+    combineDependencies,
     createHtmlEntryFile,
     createTempDirectory,
     createViteConfig,
@@ -21,16 +21,16 @@ function startViteServer(tempDir: string): void {
 
 const runWithVite = async (tempDir: string, projectPath: string) => {
     try {
-        // @TODO: Instead of having separate installs for vite and users dependencies, try to combine both the operations.
-        await installViteInTempDir(tempDir);
+        vscode.window.showInformationMessage("Preparing Vite environment...");
+
         symlinkOrCopyProjectFiles(projectPath, tempDir);
-        combinePackageJson(projectPath, tempDir);
-
-        vscode.window.showInformationMessage("Installing dependencies...");
-
+        combineDependencies(projectPath, tempDir);
         createViteConfig(tempDir, projectPath);
         createHtmlEntryFile(tempDir, projectPath);
 
+        vscode.window.showInformationMessage(
+            `Installing Vite and related plugins, this is one time process, Please wait...`
+        );
         // @TODO: Optimize this.
         exec(
             "npm install --legacy-peer-deps",
