@@ -21,6 +21,8 @@ function startViteServer(tempDir: string): void {
 
 const runWithVite = async (tempDir: string, projectPath: string) => {
     try {
+        vscode.window.showInformationMessage("Preparing Vite environment...");
+
         symlinkOrCopyProjectFiles(projectPath, tempDir);
         combineDependencies(projectPath, tempDir);
         createViteConfig(tempDir, projectPath);

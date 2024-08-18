@@ -57,6 +57,18 @@ export function symlinkOrCopyProjectFiles(
             fs.copyFileSync(filePath, path.join(tempDir, file));
         }
     });
+
+    // @TODO: Add a condtion where if package.json is changed then don't us the existing node_modules.
+    if (
+        fs.existsSync(path.join(projectPath, "node_modules")) &&
+        !fs.existsSync(path.join(tempDir, "node_modules"))
+    ) {
+        fs.cpSync(
+            path.join(projectPath, "node_modules"),
+            path.join(tempDir, "node_modules"),
+            { recursive: true }
+        );
+    }
 }
 
 const getEnvironmentVariables = (
