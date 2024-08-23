@@ -1,27 +1,45 @@
 import { exec } from "child_process";
 import * as vscode from "vscode";
+import * as os from "os";
+import treeKill from "tree-kill";
+
 import {
     combineDependencies,
     createHtmlEntryFile,
     createTempDirectory,
     createViteConfig,
-    installViteInTempDir,
     symlinkOrCopyProjectFiles,
 } from "./utils";
 
+let statusBarItem: vscode.StatusBarItem;
+let viteRunnerProcessId: number | null;
+
 function startViteServer(tempDir: string): void {
-    exec("npx vite", { cwd: tempDir }, (error, stdout, stderr) => {
-        if (error) {
-            console.error(`Vite error: ${stderr}`);
-            vscode.window.showInformationMessage("Vite error:", stderr);
-            return;
+    const processInstance = exec(
+        "npx vite",
+        { cwd: tempDir },
+        (error, stdout, stderr) => {
+            if (error) {
+                console.error(`Vite error: ${stderr}`);
+                vscode.window.showInformationMessage("Vite error:", stderr);
+                return;
+            }
         }
-    });
+    );
+
+    // Update process id of the process which is running `npx vite`, which will be the parent process of the vite server
+    viteRunnerProcessId = processInstance.pid || null;
 }
 
 const runWithVite = async (tempDir: string, projectPath: string) => {
     try {
         vscode.window.showInformationMessage("Preparing Vite environment...");
+
+        statusBarItem.text = "$(sync~spin) Vite Serve: In Progress...";
+        statusBarItem.backgroundColor = new vscode.ThemeColor(
+            "statusBarItem.warningBackground"
+        );
+        statusBarItem.show();
 
         symlinkOrCopyProjectFiles(projectPath, tempDir);
         combineDependencies(projectPath, tempDir);
@@ -39,17 +57,25 @@ const runWithVite = async (tempDir: string, projectPath: string) => {
                 if (error) {
                     throw error;
                 }
-                startViteServer(tempDir);
 
+                startViteServer(tempDir);
+                statusBarItem.text = "$(primitive-square) Stop Vite Serve";
+                statusBarItem.backgroundColor = new vscode.ThemeColor(
+                    "statusBarItem.errorBackground"
+                );
+
+                // @TODO: Include the PORT info.
                 vscode.window.showInformationMessage(
-                    "React app is running with Vite!"
+                    "Successfully started the app with Vite!"
                 );
             }
         );
     } catch (error) {
         vscode.window.showErrorMessage(
-            "Failed to run the React app with Vite."
+            "Failed to start the Vite development server."
         );
+
+        statusBarItem.hide();
     }
 };
 
@@ -87,6 +113,33 @@ export function activate(context: vscode.ExtensionContext) {
     );
 
     context.subscriptions.push(disposable);
+
+    statusBarItem = vscode.window.createStatusBarItem(
+        vscode.StatusBarAlignment.Right,
+        100
+    );
+    // statusBarItem.text = "$(play-circle) Start Vite Serve";
+    statusBarItem.command = "vite-serve.statusBar";
+
+    const statusBarItemDisposable = vscode.commands.registerCommand(
+        "vite-serve.statusBar",
+        () => {
+            if (viteRunnerProcessId) {
+                // Kill all the descendent processes of the process with pid, including the process with pid itself
+                treeKill(viteRunnerProcessId, (error) => {
+                    if (!error) {
+                        vscode.window.showInformationMessage(
+                            "Vite Serve: Server stopped successfully."
+                        );
+                        statusBarItem.hide();
+                        viteRunnerProcessId = null;
+                    }
+                });
+            }
+        }
+    );
+
+    context.subscriptions.push(statusBarItemDisposable);
 }
 
 // This method is called when your extension is deactivated
