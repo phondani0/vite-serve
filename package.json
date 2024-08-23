@@ -31,6 +31,10 @@
     "publish": "vsce publish",
     "release": "semantic-release"
   },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "tree-kill": "^1.2.2"
+  },
   "devDependencies": {
     "@semantic-release/exec": "^6.0.3",
     "@semantic-release/git": "^10.0.1",
@@ -50,8 +54,5 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/phondani0/vite-serve.git"
-  },
-  "dependencies": {
-    "dotenv": "^16.4.5"
   }
 }
